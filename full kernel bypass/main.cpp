@@ -10,33 +10,33 @@
 #include "cleaning/cleaning.h"
 #include "log.hpp"
 #include "event.h"
+#include "common.h"
+#include "data.h"
 
 using namespace driver;
 
 enum DBG_LEVEL { INF = 0x0, WRN, ERR };
 
-
-
 #define	DUMP(level, lpszFormat, ...);
-void driver_thread( void* context )
+void driver_thread(void* context)
 {
 	// allow five seconds for driver to finish entry
 	utils::sleep(5000);
-	log( "[START] :驱动开始监听 \n");
+	log("[START] :驱动开始监听 \n");
 
 	// debug text
-	log( "cleaning status -> %i \n", cleaning::clean_traces());
-	log( "tid -> %i \n", PsGetCurrentThreadId( ));
+	log("cleaning status -> %i \n", cleaning::clean_traces());
+	log("tid -> %i \n", PsGetCurrentThreadId());
 
-	
+
 	// user extersize
-	bool status = thread::unlink( );
+	bool status = thread::unlink();
 
-	log( "unlinked thread -> %i \n", status);
-	
+	log("unlinked thread -> %i \n", status);
+
 	// change your process name here
 	process::process_name = "readm.exe";
-	log( "process name -> %s", process::process_name );
+	log("process name -> %s", process::process_name);
 
 
 	//      这里是 process_by_name 的使用场景
@@ -49,7 +49,7 @@ void driver_thread( void* context )
 	//}
 	//log("found process -> %s", process::process_name);
 
-	
+
 	//      thread 方式读取内存。 在这里可以 建立 SOCKET 进行内存交互 、 Callback 交互等 （ TODO ）
 
 	// sleep for 15 seconds to allow game to get started and prevent us from getting false info
@@ -68,7 +68,7 @@ void driver_thread( void* context )
 
 	process::base_address = reinterpret_cast < uint64 >( PsGetProcessSectionBaseAddress( process::process ) );
 	log( "base address -> 0x%llx", process::base_address );
-	
+
 
 	// main loop
 	int times = 0;
@@ -86,17 +86,52 @@ void driver_thread( void* context )
 		utils::sleep(3000);
 		times += 5;
 	}
-	
+
 	*/
-	PsTerminateSystemThread( STATUS_SUCCESS );
+	PsTerminateSystemThread(STATUS_SUCCESS);
 }
+
+
+void UnloadDriver(PDRIVER_OBJECT pDriverObject)
+{
+	UNREFERENCED_PARAMETER(pDriverObject);
+	log("[END] END dDriver!");
+
+	PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)ImageLoadCallback);
+
+	IoDeleteSymbolicLink(&dos);
+	IoDeleteDevice(pDriverObject->DeviceObject);
+}
+
+
 extern "C"
-NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {
-	UNREFERENCED_PARAMETER( driver_object );
-	UNREFERENCED_PARAMETER( registry_path );
-	log( "[DRV] :Knove driver entry called.  ———— START \n");
+NTSTATUS KnoveEntry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path) {
+	UNREFERENCED_PARAMETER(driver_object);
+	UNREFERENCED_PARAMETER(registry_path);
+	log("[Knove] :IOCTL driver 开始初始化.  ———— START \n");
 
 	// IOCTL INIT
+
+	// 会蓝屏 艹
+	//driver_object->DriverUnload = UnloadDriver;
+
+	PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)ImageLoadCallback);
+
+	//RtlInitUnicodeString(&dev, L"\\Device\\knove");
+	//RtlInitUnicodeString(&dos, L"\\DosDevices\\knove");
+
+	//IoCreateDevice(driver_object, 0, &dev, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &pDeviceObject);
+	//IoCreateSymbolicLink(&dos, &dev);
+
+	//driver_object->MajorFunction[IRP_MJ_CREATE] = CreateCall;
+	//driver_object->MajorFunction[IRP_MJ_CLOSE] = CloseCall;
+	//driver_object->MajorFunction[IRP_MJ_DEVICE_CONTROL] = IoControl;
+
+	//pDeviceObject->Flags |= DO_DIRECT_IO;
+	//pDeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
+
+	log("[Knove] :IOCTL 部署完成 CreateCall CloseCall IoControl.  ———— RUNING \n");
+
 
 	// change this per mapper; debug prints the entire mmu
 	cleaning::debug = true;
@@ -105,26 +140,29 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 
 	HANDLE thread_handle = nullptr;
 	OBJECT_ATTRIBUTES object_attribues{ };
-	InitializeObjectAttributes( &object_attribues, nullptr, OBJ_KERNEL_HANDLE, nullptr, nullptr );
+	InitializeObjectAttributes(&object_attribues, nullptr, OBJ_KERNEL_HANDLE, nullptr, nullptr);
 
-	NTSTATUS status = PsCreateSystemThread( &thread_handle, 0, &object_attribues, nullptr, nullptr, reinterpret_cast< PKSTART_ROUTINE >( &driver_thread ), nullptr );
+	NTSTATUS status = PsCreateSystemThread(&thread_handle, 0, &object_attribues, nullptr, nullptr, reinterpret_cast<PKSTART_ROUTINE>(&driver_thread), nullptr);
 
 	log("thread status -> 0x%llx \n", status);
-
-	log( "[DRV] :fininshed driver entry... closing.... \n");
+	/**/
+	log("[Knove] 完成驱动的 Entry， 关闭驱动 ———— END  \n");
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS UnloadDriver(PDRIVER_OBJECT pDriverObject)
+NTSTATUS DriverEntry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path)
 {
-	UNREFERENCED_PARAMETER(pDriverObject);
-	log("Papa Rake says goodbye!");
+	UNREFERENCED_PARAMETER(driver_object);
+	UNREFERENCED_PARAMETER(registry_path);
 
-	//PsRemoveLoadImageNotifyRoutine(ImageLoadCallback);
-
-	//IoDeleteSymbolicLink(&dos);
-	//IoDeleteDevice(pDriverObject->DeviceObject);
-
-	return STATUS_SUCCESS;
-}
-
+	// This isn't a standard way against better anticheats such as BE, and EAC.
+	// Could give you a good example though.
+	UNICODE_STRING  drvName;
+	NTSTATUS status;
+	RtlInitUnicodeString(&drvName, L"\\Driver\\Knove");
+	status = IoCreateDriver(&drvName, &KnoveEntry);
+	if (NT_SUCCESS(status))
+	{
+		log("Created driver.\n");
+	}
+	return status;
