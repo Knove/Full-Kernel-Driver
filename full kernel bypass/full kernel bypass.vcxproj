@@ -159,7 +159,7 @@
     <Link>
       <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
-      <EntryPointSymbol>KnoveEntry</EntryPointSymbol>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
