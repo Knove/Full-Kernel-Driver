@@ -5,6 +5,7 @@
 #include "../defs.h"
 #include "../io/io.h"
 #include "cleaning.h"
+#include "../log.hpp"
 
 using namespace driver;
 
@@ -133,13 +134,14 @@ PRTL_AVL_TABLE get_piddb_table( )
 
 	PRTL_AVL_TABLE PiDDBCacheTable = nullptr;
 
-	if (osVersion.dwBuildNumber >= 18362) {
-		PiDDBCacheTable = (PRTL_AVL_TABLE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8d\x0d\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x83", "xxx????x????x????xx"), 3);
-	}
-	else if (osVersion.dwBuildNumber >= 17134) {
-		PiDDBCacheTable = (PRTL_AVL_TABLE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8D\x0D\x00\x00\x00\x00\x4C\x89\x35\x00\x00\x00\x00\x49", "xxx????xxx????x"), 3);
-	}
+	PiDDBCacheTable = (PRTL_AVL_TABLE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8d\x0d\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x83", "xxx????x????x????xx"), 3);
 
+	//if (osVersion.dwBuildNumber >= 18362) {
+	//	PiDDBCacheTable = (PRTL_AVL_TABLE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8d\x0d\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x3d\x00\x00\x00\x00\x0f\x83", "xxx????x????x????xx"), 3);
+	//}
+	//else if (osVersion.dwBuildNumber >= 17134) {
+	//	PiDDBCacheTable = (PRTL_AVL_TABLE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8D\x0D\x00\x00\x00\x00\x4C\x89\x35\x00\x00\x00\x00\x49", "xxx????xxx????x"), 3);
+	//}
 	if (!PiDDBCacheTable)
 		return 0;
 
@@ -151,8 +153,7 @@ PERESOURCE get_piddb_lock( )
 	size_t size;
 	uintptr_t ntos_base = get_kernel_address("ntoskrnl.exe", size);
 
-	PERESOURCE PiDDBLock = (PERESOURCE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8d\x0d\x00\x00\x00\x00\xe8\x00\x00\x00\x00\x48\x8b\x0d\x00\x00\x00\x00\x33\xdb", "xxx????x????xxx????xx"), 3);
-
+	PERESOURCE PiDDBLock = (PERESOURCE)dereference(find_pattern<uintptr_t>((void*)ntos_base, size, "\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x4C\x8B\x8C\x00\x00\x00\x00\x00\x48", "xxx????x????xxx????xx"), 3);
 	if (!PiDDBLock)
 		return 0;
 
@@ -160,7 +161,7 @@ PERESOURCE get_piddb_lock( )
 }
 
 bool cleaning::verify_piddb()
-{
+{	
 	return (get_piddb_lock() != 0 && get_piddb_table() != 0);
 }
 
