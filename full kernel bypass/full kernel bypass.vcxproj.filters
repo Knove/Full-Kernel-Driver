@@ -27,6 +27,9 @@
     <Filter Include="Header Files\cleaning">
       <UniqueIdentifier>{3f41d68c-0fe0-4184-92a1-9663637a241d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\IOCTL">
+      <UniqueIdentifier>{2163b8e8-5c3b-4668-98c6-5cedfb0cc70d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="io\io.cpp">
@@ -46,6 +49,12 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Header Files\IOCTL</Filter>
+    </ClCompile>
+    <ClCompile Include="event.cpp">
+      <Filter>Header Files\IOCTL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,5 +79,23 @@
     <ClInclude Include="cleaning\cleaning.h">
       <Filter>Header Files\cleaning</Filter>
     </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files\IOCTL</Filter>
+    </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>Header Files\IOCTL</Filter>
+    </ClInclude>
+    <ClInclude Include="data.h">
+      <Filter>Header Files\IOCTL</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="full kernel bypass.rc" />
   </ItemGroup>
 </Project>

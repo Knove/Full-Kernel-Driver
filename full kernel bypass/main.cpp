@@ -8,6 +8,8 @@
 #include "memory/memory.h"
 #include "thread/thread.h"
 #include "cleaning/cleaning.h"
+#include "log.hpp"
+#include "event.h"
 
 using namespace driver;
 
@@ -20,83 +22,71 @@ void driver_thread( void* context )
 {
 	// allow five seconds for driver to finish entry
 	utils::sleep(5000);
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[START] :驱动开始监听 \n");
+	log( "[START] :驱动开始监听 \n");
 
 	// debug text
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "cleaning status -> %i \n", cleaning::clean_traces());
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "tid -> %i \n", PsGetCurrentThreadId( ));
+	log( "cleaning status -> %i \n", cleaning::clean_traces());
+	log( "tid -> %i \n", PsGetCurrentThreadId( ));
 
 	
 	// user extersize
 	bool status = thread::unlink( );
 
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "unlinked thread -> %i \n", status);
+	log( "unlinked thread -> %i \n", status);
 	
 	// change your process name here
 	process::process_name = "readm.exe";
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "process name -> %s", process::process_name );
+	log( "process name -> %s", process::process_name );
 
+
+	//      这里是 process_by_name 的使用场景
 
 	// scuff check to check if our peprocess is valid
 	//while ( utils::process_by_name( process::process_name, &process::process ) == STATUS_NOT_FOUND)
 	//{
-	//	io::dbgprint( "waiting for -> %s", process::process_name );
+	//	log( "waiting for -> %s", process::process_name );
 	//	utils::sleep(2000);
 	//}
-	//io::dbgprint("found process -> %s", process::process_name);
+	//log("found process -> %s", process::process_name);
 
 	
+	//      thread 方式读取内存。 在这里可以 建立 SOCKET 进行内存交互 、 Callback 交互等 （ TODO ）
+
 	// sleep for 15 seconds to allow game to get started and prevent us from getting false info
+	/*
 	utils::sleep(7000);
 	HANDLE processId;
 	utils::GetProcessInfo( &processId );
 
 	PsLookupProcessByProcessId(processId, &process::process);
-	//utils::process_by_name( process::process_name, &process::process );
-	//io::dbgprint( "peprocess -> 0x%llx", process::process );
+
+	utils::process_by_name( process::process_name, &process::process );
+	log( "peprocess -> 0x%llx", process::process );
 
 	process::pid = reinterpret_cast< uint32 >( PsGetProcessId( process::process ) );
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "pid -> %i", process::pid);
+	log( "pid -> %i", process::pid);
 
 	process::base_address = reinterpret_cast < uint64 >( PsGetProcessSectionBaseAddress( process::process ) );
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "base address -> 0x%llx", process::base_address );
+	log( "base address -> 0x%llx", process::base_address );
 	
 
 	// main loop
 	int times = 0;
 	while ( times < 10 )
 	{
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "———— LOOP START ————", process::base_address);
+		log( "———— LOOP START ————", process::base_address);
 		//example read
 		uint64 round_manager = memory::read< uint64 >( process::base_address + 0x53FBB8);
-		uint32 varInt = memory::read< uint32 >( 0x53FBB8 );
-		int varInt1 = memory::read< int >( 0x53FBB8 );
+		uint64 varInt = memory::read< uint64 >( 0x53FB94 );
 		//uint32 encrypted_round_state = memory::read< uint32 >( round_manager + 0xC0 );
 		//uint32 decrypted_round_state = _rotl64(round_manager - 0x56, 0x1E );
 
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "round_manager -> 0x%llx", varInt);
-		DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "round_manager -> %d", varInt1);
+		log( "round_manager -> 0x%llx", varInt);
 
 		utils::sleep(3000);
 		times += 5;
-		// example write
-		//memory::write< uint32 >( round_manager + 0xC0, 0x0 );
-
-		// for testing
-		//if ( thread::terminate_thread ) 
-		//{
-		//	io::dbgprint( "loops -> %i", thread::total_loops );
-		//	utils::sleep( 5000 );
-		//	thread::total_loops++;
-
-		//	if ( thread::total_loops > thread::loops_before_end )
-		//	{
-		//		io::dbgprint( "terminating thread" );
-		//		PsTerminateSystemThread( STATUS_SUCCESS );
-		//	}
-		//}
 	}
-	/*
+	
 	*/
 	PsTerminateSystemThread( STATUS_SUCCESS );
 }
@@ -104,9 +94,12 @@ extern "C"
 NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {
 	UNREFERENCED_PARAMETER( driver_object );
 	UNREFERENCED_PARAMETER( registry_path );
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[DRV] :driver entry called. \n");
+	log( "[DRV] :Knove driver entry called.  ———— START \n");
+
+	// IOCTL INIT
+
 	// change this per mapper; debug prints the entire mmu
-	cleaning::debug = false;
+	cleaning::debug = true;
 	cleaning::driver_timestamp = 0x5284EAC3;
 	cleaning::driver_name = RTL_CONSTANT_STRING(L"iqvw64e.sys");
 
@@ -116,9 +109,22 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 
 	NTSTATUS status = PsCreateSystemThread( &thread_handle, 0, &object_attribues, nullptr, nullptr, reinterpret_cast< PKSTART_ROUTINE >( &driver_thread ), nullptr );
 
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "thread status -> 0x%llx \n", status);
+	log("thread status -> 0x%llx \n", status);
 
-	DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[DRV] :fininshed driver entry... closing.... \n");
+	log( "[DRV] :fininshed driver entry... closing.... \n");
+	return STATUS_SUCCESS;
+}
+
+NTSTATUS UnloadDriver(PDRIVER_OBJECT pDriverObject)
+{
+	UNREFERENCED_PARAMETER(pDriverObject);
+	log("Papa Rake says goodbye!");
+
+	//PsRemoveLoadImageNotifyRoutine(ImageLoadCallback);
+
+	//IoDeleteSymbolicLink(&dos);
+	//IoDeleteDevice(pDriverObject->DeviceObject);
+
 	return STATUS_SUCCESS;
 }
 

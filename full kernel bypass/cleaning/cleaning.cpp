@@ -207,7 +207,7 @@ PMM_UNLOADED_DRIVER get_mmu_address()
 	PVOID MmUnloadedDriversInstr = (PVOID)find_pattern2((UINT64)ntos_base, size,
 		(unsigned char*)"\x4C\x8B\x15\x00\x00\x00\x00\x4C\x8B\xC9", "xxx????xxx");
 
-	//DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "MmUnloadedDriversInstr : %p \n", MmUnloadedDriversInstr);
+	//log( "MmUnloadedDriversInstr : %p \n", MmUnloadedDriversInstr);
 
 	if (MmUnloadedDriversInstr == NULL)
 		return NULL;

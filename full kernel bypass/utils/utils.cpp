@@ -69,13 +69,13 @@ NTSTATUS driver::utils::process_by_name(CHAR* process_name, PEPROCESS* process)
     do
     {
         // win10 20H2 0x5a8
-        RtlCopyMemory( ( PVOID )( &image_name ), ( PVOID )( ( uintptr_t )cur_entry + 0x450 ) /*EPROCESS->ImageFileName*/, sizeof( image_name ) );
+        RtlCopyMemory( ( PVOID )( &image_name ), ( PVOID )( ( uintptr_t )cur_entry + 0x5a8) /*EPROCESS->ImageFileName*/, sizeof( image_name ) );
 
         if ( strstr ( image_name, process_name ) )
         {
             ULONG active_threads;
             // win10 20H2 0x5f0
-            RtlCopyMemory( ( PVOID ) &active_threads, ( PVOID )( ( uintptr_t )cur_entry + 0x498) /*EPROCESS->ActiveThreads*/, sizeof( active_threads ) );
+            RtlCopyMemory( ( PVOID ) &active_threads, ( PVOID )( ( uintptr_t )cur_entry + 0x5f0) /*EPROCESS->ActiveThreads*/, sizeof( active_threads ) );
             if ( active_threads )
             {
                 *process = cur_entry;
@@ -83,8 +83,8 @@ NTSTATUS driver::utils::process_by_name(CHAR* process_name, PEPROCESS* process)
             }
         }
         // win10 20H2 0x448
-        PLIST_ENTRY list = (PLIST_ENTRY)((uintptr_t)(cur_entry)+0x2F0) /*EPROCESS->ActiveProcessLinks*/;
-        cur_entry = (PEPROCESS)((uintptr_t)list->Flink - 0x2F0);
+        PLIST_ENTRY list = (PLIST_ENTRY)((uintptr_t)(cur_entry)+0x448) /*EPROCESS->ActiveProcessLinks*/;
+        cur_entry = (PEPROCESS)((uintptr_t)list->Flink - 0x448);
 
     } while (cur_entry != sys_process);
 
