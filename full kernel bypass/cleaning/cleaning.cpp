@@ -262,7 +262,7 @@ bool cleaning::clean_mmu()
 
 		if(cleaning::debug)
 
-			io::dbgprint("mmu driver # %i name %ws", Index, Entry->Name.Buffer);
+			io::dbgprint("mmu driver # %i name %ws \n", Index, Entry->Name.Buffer);
 
 		if (Modified)
 		{
@@ -320,26 +320,26 @@ bool cleaning::clean_traces()
 	if (cleaning::verify_mmu())
 	{
 		status = cleaning::clean_mmu();
-		if (!status)
-			io::dbgprint("failed to clean mmu");
+		if (!NT_SUCCESS(status))
+			io::dbgprint("failed to clean mmu \n");
 		else
-			io::dbgprint("cleaned mmu");
+			io::dbgprint("cleaned mmu\n");
 	}
 	else
-		io::dbgprint("failed to verify mmu");
+		io::dbgprint("failed to verify mmu\n");
 
 	if (cleaning::verify_piddb())
 	{
 		status = cleaning::clean_piddb();
 
-		if (!status)
-			io::dbgprint("failed to clean piddb");
+		if (!NT_SUCCESS(status))
+			io::dbgprint("failed to clean piddb\n");
 
 		else
-			io::dbgprint("cleaned piddb");
+			io::dbgprint("cleaned piddb\n");
 	}
 	else
-		io::dbgprint("failed to verify piddb");
+		io::dbgprint("failed to verify piddb\n");
 
 	return status;
 }

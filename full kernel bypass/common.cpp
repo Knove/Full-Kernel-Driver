@@ -3,8 +3,8 @@
 #include "common.h"
 #include "data.h"
 #include <ntdef.h>
+#include "log.hpp"
 
-#define log(x, ...) DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, x, __VA_ARGS__)
 NTSTATUS CreateCall(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 {
 	UNREFERENCED_PARAMETER(DeviceObject);
