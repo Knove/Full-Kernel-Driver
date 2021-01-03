@@ -94,9 +94,7 @@ extern "C"
 NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {
 	UNREFERENCED_PARAMETER( driver_object );
 	UNREFERENCED_PARAMETER( registry_path );
-	log( "[DRV] :Knove driver entry called.  ———— START \n");
-
-	// IOCTL INIT
+	log("[Knove] :IOCTL driver 开始初始化.  ———— START \n");
 
 	// change this per mapper; debug prints the entire mmu
 	cleaning::debug = true;
@@ -111,20 +109,7 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 
 	log("thread status -> 0x%llx \n", status);
 
-	log( "[DRV] :fininshed driver entry... closing.... \n");
-	return STATUS_SUCCESS;
-}
-
-NTSTATUS UnloadDriver(PDRIVER_OBJECT pDriverObject)
-{
-	UNREFERENCED_PARAMETER(pDriverObject);
-	log("Papa Rake says goodbye!");
-
-	//PsRemoveLoadImageNotifyRoutine(ImageLoadCallback);
-
-	//IoDeleteSymbolicLink(&dos);
-	//IoDeleteDevice(pDriverObject->DeviceObject);
-
+	log("[Knove] 完成驱动的 Entry， 关闭驱动 ———— END  \n");
 	return STATUS_SUCCESS;
 }
 
