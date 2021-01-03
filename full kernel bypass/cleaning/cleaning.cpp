@@ -207,6 +207,8 @@ PMM_UNLOADED_DRIVER get_mmu_address()
 	PVOID MmUnloadedDriversInstr = (PVOID)find_pattern2((UINT64)ntos_base, size,
 		(unsigned char*)"\x4C\x8B\x15\x00\x00\x00\x00\x4C\x8B\xC9", "xxx????xxx");
 
+	//DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "MmUnloadedDriversInstr : %p \n", MmUnloadedDriversInstr);
+
 	if (MmUnloadedDriversInstr == NULL)
 		return NULL;
 
@@ -259,6 +261,7 @@ bool cleaning::clean_mmu()
 		PMM_UNLOADED_DRIVER Entry = &get_mmu_address()[Index];
 
 		if(cleaning::debug)
+
 			io::dbgprint("mmu driver # %i name %ws", Index, Entry->Name.Buffer);
 
 		if (Modified)
@@ -317,7 +320,6 @@ bool cleaning::clean_traces()
 	if (cleaning::verify_mmu())
 	{
 		status = cleaning::clean_mmu();
-
 		if (!status)
 			io::dbgprint("failed to clean mmu");
 		else

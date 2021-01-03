@@ -35,9 +35,6 @@
     <ClCompile Include="memory\memory.cpp">
       <Filter>Header Files\memory</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils\utils.cpp">
       <Filter>Header Files\utils</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="cleaning\cleaning.cpp">
       <Filter>Header Files\cleaning</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
