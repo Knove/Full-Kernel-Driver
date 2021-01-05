@@ -9,9 +9,11 @@
 #include "thread/thread.h"
 #include "cleaning/cleaning.h"
 #include "log.hpp"
-#include "event.h"
+#include "server_shared.h"
 
 using namespace driver;
+
+extern void server_thread();
 
 enum DBG_LEVEL { INF = 0x0, WRN, ERR };
 
@@ -38,38 +40,30 @@ void driver_thread( void* context )
 	process::process_name = "readm.exe";
 	log( "process name -> %s", process::process_name );
 
-
-	//      这里是 process_by_name 的使用场景
-
-	// scuff check to check if our peprocess is valid
-	//while ( utils::process_by_name( process::process_name, &process::process ) == STATUS_NOT_FOUND)
-	//{
-	//	log( "waiting for -> %s", process::process_name );
-	//	utils::sleep(2000);
-	//}
-	//log("found process -> %s", process::process_name);
-
-	
+	server_thread();
 	//      thread 方式读取内存。 在这里可以 建立 SOCKET 进行内存交互 、 Callback 交互等 （ TODO ）
 
 	// sleep for 15 seconds to allow game to get started and prevent us from getting false info
+	
+	//utils::sleep(7000);
+	//HANDLE processId;
+	//utils::GetProcessInfo( &processId );
+
+	//PsLookupProcessByProcessId(processId, &process::process);
+
+	//utils::process_by_name( process::process_name, &process::process );
+	//log( "peprocess -> 0x%llx", process::process );
+
+	//process::pid = reinterpret_cast< uint32 >( PsGetProcessId( process::process ) );
+	//log( "pid -> %i", process::pid);
+
+	//uint64 varInt = memory::read< uint64 >(0x53FB94);
+	//memory::read_virtual_memory(process::pid, process::process, (void*)0x53FB94, (void*)packet.dest_address, packet.size);
 	/*
-	utils::sleep(7000);
-	HANDLE processId;
-	utils::GetProcessInfo( &processId );
-
-	PsLookupProcessByProcessId(processId, &process::process);
-
-	utils::process_by_name( process::process_name, &process::process );
-	log( "peprocess -> 0x%llx", process::process );
-
-	process::pid = reinterpret_cast< uint32 >( PsGetProcessId( process::process ) );
-	log( "pid -> %i", process::pid);
-
 	process::base_address = reinterpret_cast < uint64 >( PsGetProcessSectionBaseAddress( process::process ) );
 	log( "base address -> 0x%llx", process::base_address );
 	
-
+	
 	// main loop
 	int times = 0;
 	while ( times < 10 )
@@ -109,6 +103,7 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 
 	log("thread status -> 0x%llx \n", status);
 
+	ZwClose(thread_handle);
 	log("[Knove] 完成驱动的 Entry， 关闭驱动 ———— END  \n");
 	return STATUS_SUCCESS;
 }

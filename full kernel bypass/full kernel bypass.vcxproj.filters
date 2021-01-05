@@ -27,8 +27,8 @@
     <Filter Include="Header Files\cleaning">
       <UniqueIdentifier>{3f41d68c-0fe0-4184-92a1-9663637a241d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\IOCTL">
-      <UniqueIdentifier>{2163b8e8-5c3b-4668-98c6-5cedfb0cc70d}</UniqueIdentifier>
+    <Filter Include="Header Files\ksocket">
+      <UniqueIdentifier>{c5879d1c-2781-4788-920e-7bfefef41078}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -50,11 +50,14 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common.cpp">
-      <Filter>Header Files\IOCTL</Filter>
+    <ClCompile Include="berkeley.c">
+      <Filter>Header Files\ksocket</Filter>
     </ClCompile>
-    <ClCompile Include="event.cpp">
-      <Filter>Header Files\IOCTL</Filter>
+    <ClCompile Include="ksocket.c">
+      <Filter>Header Files\ksocket</Filter>
+    </ClCompile>
+    <ClCompile Include="server.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,19 +82,25 @@
     <ClInclude Include="cleaning\cleaning.h">
       <Filter>Header Files\cleaning</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files\IOCTL</Filter>
-    </ClInclude>
-    <ClInclude Include="event.h">
-      <Filter>Header Files\IOCTL</Filter>
-    </ClInclude>
-    <ClInclude Include="data.h">
-      <Filter>Header Files\IOCTL</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ksocket.h">
+      <Filter>Header Files\ksocket</Filter>
+    </ClInclude>
+    <ClInclude Include="berkeley.h">
+      <Filter>Header Files\ksocket</Filter>
+    </ClInclude>
+    <ClInclude Include="stdint.h">
+      <Filter>Header Files\ksocket</Filter>
+    </ClInclude>
+    <ClInclude Include="sockets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="server_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -181,26 +181,29 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="berkeley.c" />
     <ClCompile Include="cleaning\cleaning.cpp" />
-    <ClCompile Include="common.cpp" />
-    <ClCompile Include="event.cpp" />
     <ClCompile Include="io\io.cpp" />
+    <ClCompile Include="ksocket.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="memory\memory.cpp" />
+    <ClCompile Include="server.cpp" />
     <ClCompile Include="thread\thread.cpp" />
     <ClCompile Include="utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="berkeley.h" />
     <ClInclude Include="cleaning\cleaning.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="data.h" />
     <ClInclude Include="defs.h" />
-    <ClInclude Include="event.h" />
     <ClInclude Include="io\io.h" />
+    <ClInclude Include="ksocket.h" />
     <ClInclude Include="log.hpp" />
     <ClInclude Include="memory\memory.h" />
     <ClInclude Include="process\process.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="server_shared.h" />
+    <ClInclude Include="sockets.h" />
+    <ClInclude Include="stdint.h" />
     <ClInclude Include="thread\thread.h" />
     <ClInclude Include="utils\utils.h" />
   </ItemGroup>
