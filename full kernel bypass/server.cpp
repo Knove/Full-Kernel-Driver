@@ -211,25 +211,35 @@ void server_thread()
 
 		// Create a thread that will handle connection with client.
 		// TODO: Limit number of threads.
-		status = PsCreateSystemThread(
-			&thread_handle,
-			GENERIC_ALL,
-			nullptr,
-			nullptr,
-			nullptr,
-			connection_thread,
-			(void*)client_connection
-		);
+		//status = PsCreateSystemThread(
+		//	&thread_handle,
+		//	GENERIC_ALL,
+		//	nullptr,
+		//	nullptr,
+		//	nullptr,
+		//	connection_thread,
+		//	(void*)client_connection
+		//);
 
-		if (!NT_SUCCESS(status))
-		{
-			log("Failed to create thread for handling client connection.");
+		//if (!NT_SUCCESS(status))
+		//{
+		//	log("Failed to create thread for handling client connection.");
 
-			closesocket(client_connection);
-			break;
-		}
+		//	closesocket(client_connection);
+		//	break;
+		//}
 
-		ZwClose(thread_handle);
+		//ZwClose(thread_handle);
+
+
+		// sec
+		PWORK_QUEUE_ITEM WorkItem = (PWORK_QUEUE_ITEM)ExAllocatePool(NonPagedPool, sizeof(WORK_QUEUE_ITEM));
+
+		ExInitializeWorkItem(WorkItem, connection_thread, (void*)client_connection);
+
+		ExQueueWorkItem(WorkItem, DelayedWorkQueue);
+
+
 	}
 	
 	// 1 √Î∫Û πÿ±’ SOCKET

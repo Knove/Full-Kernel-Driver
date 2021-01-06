@@ -86,6 +86,10 @@ void driver_thread( void* context )
 }
 extern "C"
 NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {
+
+	KeEnterGuardedRegion();
+
+
 	UNREFERENCED_PARAMETER( driver_object );
 	UNREFERENCED_PARAMETER( registry_path );
 	log("[Knove] :IOCTL driver 开始初始化.  ———— START \n");
@@ -95,15 +99,31 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 	cleaning::driver_timestamp = 0x5284EAC3;
 	cleaning::driver_name = RTL_CONSTANT_STRING(L"iqvw64e.sys");
 
-	HANDLE thread_handle = nullptr;
-	OBJECT_ATTRIBUTES object_attribues{ };
-	InitializeObjectAttributes( &object_attribues, nullptr, OBJ_KERNEL_HANDLE, nullptr, nullptr );
+	// PsCreateSystemThread 方式新建系统线程
 
-	NTSTATUS status = PsCreateSystemThread( &thread_handle, 0, &object_attribues, nullptr, nullptr, reinterpret_cast< PKSTART_ROUTINE >( &driver_thread ), nullptr );
+	//HANDLE thread_handle = nullptr;
+	//OBJECT_ATTRIBUTES object_attribues{ };
+	//InitializeObjectAttributes( &object_attribues, nullptr, OBJ_KERNEL_HANDLE, nullptr, nullptr );
 
-	log("thread status -> 0x%llx \n", status);
+	//NTSTATUS status = PsCreateSystemThread( &thread_handle, 0, &object_attribues, nullptr, nullptr, reinterpret_cast< PKSTART_ROUTINE >( &driver_thread ), nullptr );
 
-	ZwClose(thread_handle);
+	//log("thread status -> 0x%llx \n", status);
+
+	//ZwClose(thread_handle);
+
+
+
+	// ExInitializeWorkItem 方式新建系统线程
+
+	PWORK_QUEUE_ITEM WorkItem = (PWORK_QUEUE_ITEM)ExAllocatePool(NonPagedPool, sizeof(WORK_QUEUE_ITEM));
+	if (!WorkItem)
+	{
+		log("Failed to allocate memory for work item");
+	}
+	ExInitializeWorkItem(WorkItem, driver_thread, WorkItem);
+	ExQueueWorkItem(WorkItem, DelayedWorkQueue);
+
+	KeLeaveGuardedRegion();
 	log("[Knove] 完成驱动的 Entry， 关闭驱动 ———— END  \n");
 	return STATUS_SUCCESS;
 }
