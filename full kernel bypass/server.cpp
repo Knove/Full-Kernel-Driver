@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "log.hpp"
 #include "utils/utils.h"
+#include "imports.h"
 
 using namespace driver;
 
@@ -23,6 +24,50 @@ NTSTATUS NTAPI MmCopyVirtualMemory
 	KPROCESSOR_MODE PreviousMode,
 	PSIZE_T			ReturnSize
 );
+
+
+uint64_t RDrvGetModuleEntry(PEPROCESS Process, UNICODE_STRING
+	module_name)
+{
+	if (!Process) return (uint64_t)STATUS_INVALID_PARAMETER_1;
+	PPEB peb = PsGetProcessPeb(Process);
+
+	if (!peb) {
+		DbgPrintEx(0, 0, "Error pPeb not found \n");
+		return 0;
+	}
+	KAPC_STATE state;
+	KeStackAttachProcess(Process, &state);
+	PPEB_LDR_DATA ldr = peb->Ldr;
+
+	if (!ldr)
+	{
+		DbgPrintEx(0, 0, "Error pLdr not found \n");
+		KeUnstackDetachProcess(&state);
+		return 0; // failed
+	}
+
+	for (PLIST_ENTRY listEntry = (PLIST_ENTRY)ldr->ModuleListLoadOrder.Flink;
+		listEntry != &ldr->ModuleListLoadOrder;
+		listEntry = (PLIST_ENTRY)listEntry->Flink)
+	{
+
+		PLDR_DATA_TABLE_ENTRY ldrEntry = CONTAINING_RECORD(listEntry, LDR_DATA_TABLE_ENTRY, InLoadOrderModuleList);
+		if (RtlCompareUnicodeString(&ldrEntry->BaseDllName, &module_name, TRUE) ==
+			0) {
+			ULONG64 baseAddr = (ULONG64)ldrEntry->DllBase;
+			KeUnstackDetachProcess(&state);
+			return baseAddr;
+		}
+
+	}
+
+	DbgPrintEx(0, 0, "Error exiting funcion nothing was found found \n");
+	KeUnstackDetachProcess(&state);
+
+	return 0;
+}
+
 
 // 枚举
 // 读取内存，并获取内容
@@ -78,6 +123,25 @@ static uint64_t handle_get_base_address(const PacketGetBaseAddress& packet)
 
 	return base_address;
 }
+
+
+static uint64_t handle_get_peb(const PacketGetBasePeb& packet)
+{
+	PEPROCESS process = nullptr;
+	NTSTATUS  status = PsLookupProcessByProcessId(HANDLE(packet.process_id), &process);
+
+	if (!NT_SUCCESS(status))
+		return false;
+
+	UNICODE_STRING DLLName;
+	RtlInitUnicodeString(&DLLName, L"UnityPlayer.dll");
+	const auto base_address = RDrvGetModuleEntry(process, DLLName);
+
+	ObDereferenceObject(process);
+
+	return base_address;
+}
+
 // 枚举结束
 
 
@@ -90,6 +154,9 @@ uint64_t handle_incoming_packet(const Packet& packet)
 
 	case PacketType::packet_get_base_address:
 		return handle_get_base_address(packet.data.get_base_address);
+
+	case PacketType::packet_get_peb:
+		return handle_get_peb(packet.data.get_base_peb);
 
 	default:
 		break;

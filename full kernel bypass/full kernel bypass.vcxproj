@@ -195,6 +195,7 @@
     <ClInclude Include="berkeley.h" />
     <ClInclude Include="cleaning\cleaning.h" />
     <ClInclude Include="defs.h" />
+    <ClInclude Include="imports.h" />
     <ClInclude Include="io\io.h" />
     <ClInclude Include="ksocket.h" />
     <ClInclude Include="log.hpp" />
