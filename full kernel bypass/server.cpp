@@ -74,9 +74,10 @@ uint64_t RDrvGetModuleEntry(PEPROCESS Process, UNICODE_STRING
 static uint64_t handle_copy_memory(const PacketCopyMemory& packet)
 {
 	// 目标进程
-	if (!NT_SUCCESS(PsLookupProcessByProcessId(HANDLE(packet.src_process_id), &process::process)))
+	PEPROCESS src_process = nullptr;
+	if (!NT_SUCCESS(PsLookupProcessByProcessId(HANDLE(packet.src_process_id), &src_process)))
 	{
-		ObDereferenceObject(process::process);
+		ObDereferenceObject(src_process);
 		return uint64_t(STATUS_INVALID_CID);
 	}
 
@@ -84,6 +85,7 @@ static uint64_t handle_copy_memory(const PacketCopyMemory& packet)
 	PEPROCESS dest_process = nullptr;
 	if (!NT_SUCCESS(PsLookupProcessByProcessId(HANDLE(packet.dest_process_id), &dest_process)))
 	{
+		ObDereferenceObject(dest_process);
 		return uint64_t(STATUS_INVALID_CID);
 	}
 
@@ -93,7 +95,7 @@ static uint64_t handle_copy_memory(const PacketCopyMemory& packet)
 
 	SIZE_T   return_size = 0;
 	NTSTATUS status = MmCopyVirtualMemory(
-		process::process,
+		src_process,
 		(void*)packet.src_address,
 		dest_process,
 		(void*)packet.dest_address,
@@ -102,7 +104,7 @@ static uint64_t handle_copy_memory(const PacketCopyMemory& packet)
 		&return_size
 	);
 
-	ObDereferenceObject(process::process);
+	ObDereferenceObject(src_process);
 	ObDereferenceObject(dest_process);
 
 	return uint64_t(status);
@@ -112,14 +114,14 @@ static uint64_t handle_copy_memory(const PacketCopyMemory& packet)
 static uint64_t handle_get_base_address(const PacketGetBaseAddress& packet)
 {
 
-
-	if (!NT_SUCCESS(PsLookupProcessByProcessId(HANDLE(packet.process_id), &process::process)))
+	PEPROCESS process = nullptr;
+	if (!NT_SUCCESS(PsLookupProcessByProcessId(HANDLE(packet.process_id), &process)))
 	{
-		ObDereferenceObject(process::process);
+		ObDereferenceObject(process);
 		return uint64_t(STATUS_INVALID_CID);
 	}
-	const auto base_address = uint64_t(PsGetProcessSectionBaseAddress(process::process));
-	ObDereferenceObject(process::process);
+	const auto base_address = uint64_t(PsGetProcessSectionBaseAddress(process));
+	ObDereferenceObject(process);
 
 	return base_address;
 }
