@@ -36,9 +36,6 @@ void driver_thread( void* context )
 
 	log( "unlinked thread -> %i \n", status);
 	
-	// change your process name here
-	process::process_name = "readm.exe";
-	log( "process name -> %s", process::process_name );
 
 	server_thread();
 	//      thread 方式读取内存。 在这里可以 建立 SOCKET 进行内存交互 、 Callback 交互等 （ TODO ）
@@ -81,8 +78,9 @@ void driver_thread( void* context )
 		times += 5;
 	}
 	
-	*/
+	
 	PsTerminateSystemThread( STATUS_SUCCESS );
+	*/
 }
 extern "C"
 NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {

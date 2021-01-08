@@ -247,20 +247,20 @@ void server_thread()
 	auto status = KsInitialize();
 	if (!NT_SUCCESS(status))
 	{
-		log("Failed to initialize KSOCKET. Status code: %X.", status);
+		log("Failed to initialize KSOCKET. Status code: %X. \n", status);
 		return;
 	}
 
 	const auto listen_socket = create_listen_socket();
 	if (listen_socket == INVALID_SOCKET)
 	{
-		log("Failed to initialize listening socket.");
+		log("Failed to initialize listening socket. \n");
 
 		KsDestroy();
 		return;
 	}
 
-	log("Listening on port %d.", server_port);
+	log("Listening on port %d. \n", server_port);
 
 
 
