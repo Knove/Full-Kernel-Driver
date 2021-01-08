@@ -23,7 +23,7 @@ enum DBG_LEVEL { INF = 0x0, WRN, ERR };
 void driver_thread( void* context )
 {
 	// allow five seconds for driver to finish entry
-	utils::sleep(5000);
+	//utils::sleep(5000);
 	log( "[START] :驱动开始监听 \n");
 
 	// debug text
@@ -35,7 +35,6 @@ void driver_thread( void* context )
 	bool status = thread::unlink( );
 
 	log( "unlinked thread -> %i \n", status);
-	
 
 	server_thread();
 	//      thread 方式读取内存。 在这里可以 建立 SOCKET 进行内存交互 、 Callback 交互等 （ TODO ）
@@ -83,17 +82,17 @@ void driver_thread( void* context )
 	*/
 }
 extern "C"
-NTSTATUS DriverEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {
+NTSTATUS KnoveEntry( PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path ) {
 
 	KeEnterGuardedRegion();
 
 
 	UNREFERENCED_PARAMETER( driver_object );
 	UNREFERENCED_PARAMETER( registry_path );
-	log("[Knove] :IOCTL driver 开始初始化.  ———— START \n");
+	log("[Knove] :driver 开始初始化.  ———— START \n");
 
 	// change this per mapper; debug prints the entire mmu
-	cleaning::debug = true;
+	cleaning::debug = false;
 	cleaning::driver_timestamp = 0x5284EAC3;
 	cleaning::driver_name = RTL_CONSTANT_STRING(L"iqvw64e.sys");
 

@@ -29,3 +29,4 @@ int recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_
 int closesocket(int sockfd);
 
 #define socket  socket_connection
+

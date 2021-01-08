@@ -5,7 +5,7 @@
 // Definitions.
 //////////////////////////////////////////////////////////////////////////
 
-#define MEMORY_TAG            ' bsK'
+#define MEMORY_TAG            'bcE'
 #define SOCKETFD_MAX          128
 #define TO_SOCKETFD(index)    ((index % SOCKETFD_MAX)  + 1)
 #define FROM_SOCKETFD(sockfd) ((sockfd)                - 1)
